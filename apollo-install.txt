@@ -1,0 +1,77 @@
+# Required for Ubuntu 14.04 / 16.04.
+curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+
+# Ubuntu 14.04 / 16.04 / 18.04.
+sudo apt-get install -y git-lfs
+
+# Ensure that git-lfs is setup correctly in your git configuration files.
+# Run it only once.
+git lfs install
+
+# Option 1: Clone the Apollo repository with SSH
+git lfs clone git@github.com:ApolloAuto/apollo.git
+# Option 2: Clone the Apollo repository with HTTPS
+git lfs clone https://github.com/ApolloAuto/apollo.git
+# Change to the "apollo" directory 
+cd apollo
+# Checkout the "master" branch
+git checkout master
+# Set the environment variable "APOLLO_HOME"
+echo "export APOLLO_HOME=$(pwd)" >> ~/.bashrc && source ~/.bashr
+
+
+
+liming75121888888
+
+
+# Remove the "origin" repository
+git remote remove origin
+# Set my own fork "git@github.com:davidhopper2003/apollo.git" to "origin" repository
+# Please modify "git@github.com:davidhopper2003/apollo.git" to your fork
+git remote add origin git@github.com:davidhopper2003/apollo.git
+# Set "git@github.com:ApolloAuto/apollo.git" to "upstream" repository
+git remote add upstream git@github.com:ApolloAuto/apollo.git
+# Display updated repositories.
+git remote -v
+
+
+# It will take a long time
+git lfs fetch --all
+# Option 1: if the current branch is master, push it directly to the origin
+git push -f origin master
+# Option 2: if the current branch is a development branch such as dh_dev, update it to the origin's master branch
+git push -f origin dh_dev:master  
+
+
+# Start the docker.
+bash docker/scripts/dev_start.sh -C
+# Step into the docker.
+bash docker/scripts/dev_into.sh
+# Build the apollo project in the docker.
+# -j 8 depends on the number of CPU cores on your machine.
+bash apollo.sh build -j 8
+
+bash scripts/bootstrap.sh
+
+
+
+
+# exit the docker if you are in it.
+exit
+# Stop the docker.
+bash docker/scripts/dev_start.sh stop
+# delete all of the bazel cache files.
+cd ~/.cache/bazel
+sudo rm -rf _bazel_*
+cd ~
+sudo rm -rf .BRANCH_*
+cd ~/code/apollo
+# Start the docker.
+bash docker/scripts/dev_start.sh -C
+# Step into the docker.
+bash docker/scripts/dev_into.sh
+# Build the apollo project in the docker.
+# -j 8 depends on the number of CPU cores on your machine.
+bash apollo.sh build -j 8
+
+
